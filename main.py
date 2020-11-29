@@ -8,14 +8,16 @@ class Window(QMainWindow):
     def __init__(self):
         super().__init__()
         uic.loadUi('main.ui', self)
+        self.textEdit.setReadOnly(True)
         self.pushButton.clicked.connect(self.show_coffee)
 
     def show_coffee(self):
         con = sqlite3.connect('coffee.sqlite')
         cur = con.cursor()
         coffee_list = cur.execute('''SELECT * FROM type_of_coffee''')
+        self.textEdit.clear()
         for i in coffee_list:
-            self.textEdit.setText('Эспрессо\n')
+            self.textEdit.setText(self.textEdit.toPlainText() + 'Эспрессо\n')
             self.textEdit.setText(self.textEdit.toPlainText() + '---------------------------------\n')
             self.textEdit.setText(self.textEdit.toPlainText() + 'Сорт: ' + i[1] + '\n')
             self.textEdit.setText(self.textEdit.toPlainText() + 'Степень обжарки: ' + i[2] + '\n')
