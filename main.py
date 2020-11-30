@@ -48,18 +48,40 @@ class SecondWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         uic.loadUi('addEditCoffeeForm.ui', self)
-        self.pushButton.clicked.connect(self.save_coffee)
+        self.pushButton.clicked.connect(self.save_coffee_add)
+        self.pushButton_2.clicked.connect(self.save_coffee_edit)
 
     def add_coffee(self):
         self.label_7.hide()
         self.spinBox_3.hide()
+        self.pushButton_2.hide()
         self.setWindowTitle('Добавить кофе')
 
     def edit_coffee(self):
+        self.pushButton.hide()
         self.setWindowTitle('Редактировать кофе')
 
-    def save_coffee(self):
-        pass
+    def save_coffee_add(self):
+        self.statusBar().clearMessage()
+        if self.lineEdit.text() and self.lineEdit_2.text() and self.lineEdit_3.text():
+            if self.lineEdit.text().isalpha() and self.lineEdit_2.text().isalpha() and self.lineEdit.text().isalpha():
+                con = sqlite3.connect('coffee.sqlite')
+                cur = con.cursor()
+                cur.execute('''INSERT INTO type_of_coffee(variety, roasting, type, taste, price, size) 
+                               VALUES(?, ?, ?, ?, ?, ?)''', (self.lineEdit.text(), self.lineEdit_2.text(),
+                                                             self.comboBox.currentText(), self.lineEdit_3.text(),
+                                                             self.spinBox.value(), self.spinBox_2.value()))
+                con.commit()
+                con.close()
+                ex.show_coffee()
+                ex2.close()
+            else:
+                self.statusBar().showMessage('Введите корректные данные')
+        else:
+            self.statusBar().showMessage('Заполните все поля')
+
+    def save_coffee_edit(self):
+        self.statusBar().showMessage('Edit')
 
 
 if __name__ == '__main__':
