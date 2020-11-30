@@ -16,9 +16,8 @@ class Window(QMainWindow):
         cur = con.cursor()
         coffee_list = cur.execute('''SELECT * FROM type_of_coffee''')
         self.textEdit.clear()
+        self.textEdit.setText(self.textEdit.toPlainText() + '---------------------------------\n')
         for i in coffee_list:
-            self.textEdit.setText(self.textEdit.toPlainText() + 'Эспрессо\n')
-            self.textEdit.setText(self.textEdit.toPlainText() + '---------------------------------\n')
             self.textEdit.setText(self.textEdit.toPlainText() + 'Сорт: ' + i[1] + '\n')
             self.textEdit.setText(self.textEdit.toPlainText() + 'Степень обжарки: ' + i[2] + '\n')
             self.textEdit.setText(self.textEdit.toPlainText() + 'Молотый/в зернах: ' + i[3] + '\n')
