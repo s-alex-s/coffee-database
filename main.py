@@ -23,8 +23,8 @@ class Window(QMainWindow):
             self.textEdit.setText(self.textEdit.toPlainText() + 'Степень обжарки: ' + i[2] + '\n')
             self.textEdit.setText(self.textEdit.toPlainText() + 'Молотый/в зернах: ' + i[3] + '\n')
             self.textEdit.setText(self.textEdit.toPlainText() + 'Описание вкуса: ' + i[4] + '\n')
-            self.textEdit.setText(self.textEdit.toPlainText() + 'Цена: ' + i[5] + '\n')
-            self.textEdit.setText(self.textEdit.toPlainText() + 'Объем упаковки: ' + i[6] + '\n')
+            self.textEdit.setText(self.textEdit.toPlainText() + 'Цена: ' + str(i[5]) + ' тг.\n')
+            self.textEdit.setText(self.textEdit.toPlainText() + 'Объем упаковки: ' + str(i[6]) + ' г.\n')
             self.textEdit.setText(self.textEdit.toPlainText() + '---------------------------------\n')
         con.close()
 
