@@ -1,8 +1,7 @@
 import sys
 import sqlite3
 from PyQt5 import uic
-from PyQt5.QtWidgets import QMainWindow, QApplication, QDialog, QPushButton
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtWidgets import QMainWindow, QApplication, QInputDialog, QMessageBox
 
 
 class Window(QMainWindow):
@@ -34,8 +33,17 @@ class Window(QMainWindow):
     def edit_window(self):
         global ex2
         ex2 = SecondWindow()
-        ex2.show()
-        ex2.edit_coffee()
+        check_id = QInputDialog.getInt(self, 'id', 'Введите id кофе', 1, 1, 10000, 1)
+        con = sqlite3.connect('coffee.sqlite')
+        cur = con.cursor()
+        while not list(cur.execute(f'SELECT * FROM type_of_coffee WHERE id = {check_id[0]}')) and check_id[1]:
+            QMessageBox.information(self, 'id', 'Кофе с таким id не существует')
+            check_id = QInputDialog.getInt(self, 'id', 'Введите id кофе', 1, 1, 10000, 1)
+        if check_id[1]:
+            con.close()
+            ex2.show()
+            ex2.edit_coffee(check_id[0])
+        con.close()
 
     def add_window(self):
         global ex2
@@ -52,14 +60,26 @@ class SecondWindow(QMainWindow):
         self.pushButton_2.clicked.connect(self.save_coffee_edit)
 
     def add_coffee(self):
-        self.label_7.hide()
-        self.spinBox_3.hide()
         self.pushButton_2.hide()
         self.setWindowTitle('Добавить кофе')
 
-    def edit_coffee(self):
+    def edit_coffee(self, id):
+        self.current_id = id
         self.pushButton.hide()
-        self.setWindowTitle('Редактировать кофе')
+        self.setWindowTitle(f'Редактировать кофе | id: {self.current_id}')
+        con = sqlite3.connect('coffee.sqlite')
+        cur = con.cursor()
+        info = list(cur.execute(f'SELECT * FROM type_of_coffee WHERE id = {self.current_id}'))[0]
+        self.lineEdit.setText(info[1])
+        self.lineEdit_2.setText(info[2])
+        if info[3] == 'Молотый':
+            self.comboBox.setCurrentIndex(0)
+        else:
+            self.comboBox.setCurrentIndex(1)
+        self.lineEdit_3.setText(info[4])
+        self.spinBox.setValue(info[5])
+        self.spinBox_2.setValue(info[6])
+        con.close()
 
     def save_coffee_add(self):
         self.statusBar().clearMessage()
@@ -81,7 +101,25 @@ class SecondWindow(QMainWindow):
             self.statusBar().showMessage('Заполните все поля')
 
     def save_coffee_edit(self):
-        self.statusBar().showMessage('Edit')
+        self.statusBar().clearMessage()
+        if self.lineEdit.text() and self.lineEdit_2.text() and self.lineEdit_3.text():
+            if self.lineEdit.text().isalpha() and self.lineEdit_2.text().isalpha() and self.lineEdit.text().isalpha():
+                con = sqlite3.connect('coffee.sqlite')
+                cur = con.cursor()
+                cur.execute('''UPDATE type_of_coffee
+                               SET variety = ?, roasting = ?, type = ?, taste = ?, price = ?, size = ?
+                               WHERE id = ?''', (self.lineEdit.text(), self.lineEdit_2.text(),
+                                                 self.comboBox.currentText(), self.lineEdit_3.text(),
+                                                 self.spinBox.value(), self.spinBox_2.value(),
+                                                 self.current_id))
+                con.commit()
+                con.close()
+                ex.show_coffee()
+                ex2.close()
+            else:
+                self.statusBar().showMessage('Введите корректные данные')
+        else:
+            self.statusBar().showMessage('Введите корректные данные')
 
 
 if __name__ == '__main__':
